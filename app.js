@@ -30,7 +30,7 @@ function addItem(e) {
     createListItem(id, value)
 
     //display alert
-    displayAlert('item adicionado a lista', 'success')
+    displayAlert('Item adicionado a lista', 'success')
     container.classList.add('show-container')
     //add to local storage
     addToLocalStorage(id, value)
@@ -38,12 +38,12 @@ function addItem(e) {
     setBackToDefault()
   } else if (value && editFlag) {
     editElement.innerHTML = value
-    displayAlert('item editado com sucesso', 'sucesso')
+    displayAlert('Item editado com sucesso', 'sucesso')
     //edit local storage
     editLocalStorage(editID, value)
     setBackToDefault()
   } else {
-    displayAlert('por favor digite algo', 'danger')
+    displayAlert('Por favor digite algo', 'danger')
   }
 }
 //DISPLAY ALERT
@@ -72,7 +72,7 @@ function clearItems() {
     })
   }
   container.classList.remove('show-container')
-  displayAlert('itens removidos com sucesso', 'success')
+  displayAlert('Itens removidos com sucesso', 'success')
   setBackToDefault()
   localStorage.removeItem('list')
 }
@@ -86,7 +86,7 @@ function deleteItem(e) {
   if (list.children.length === 0) {
     container.classList.remove('show-container')
   }
-  displayAlert('item removido com sucesso', 'success')
+  displayAlert('Item removido com sucesso', 'success')
   setBackToDefault()
   //remove from local storage
   removeFromLocalStorage(id)
