@@ -17,37 +17,18 @@ let editID = ''
 form.addEventListener('submit', addItem)
 //CLEAR ITEMS
 clearButton.addEventListener('click', clearItems)
+//load items
+window.addEventListener('DOMContentLoaded', setupItems)
 // ****** FUNCTIONS **********
 function addItem(e) {
   e.preventDefault()
   //console.log(grocery.value)
   const value = grocery.value
-  const id = new Date().getTime().toString
+  const id = new Date().getTime().toString()
+  console.log(id)
   if (value && !editFlag) {
-    const element = document.createElement('article')
-    // add class
-    element.classList.add('grocery-item')
-    //add id
-    const attr = document.createAttribute('data-id')
-    attr.value = id
-    element.setAttributeNode(attr)
-    element.innerHTML = `<p class="title">${value}</p>
-    <div class="btn-container">
-      <button type="button" class="edit-btn">
-        <i class="fas fa-edit"></i>
-      </button>
-      <button type="button" class="delete-btn">
-        <i class="fas fa-trash"></i>
-      </button>
-    </div>`
-    //delete event listener
-    const deleteButton = element.querySelector('.delete-btn')
-    deleteButton.addEventListener('click', deleteItem)
-    //edit event listener
-    const editButton = element.querySelector('.edit-btn')
-    editButton.addEventListener('click', editItem)
-    //append child
-    list.appendChild(element)
+    createListItem(id, value)
+
     //display alert
     displayAlert('item adicionado a lista', 'success')
     container.classList.add('show-container')
@@ -56,6 +37,11 @@ function addItem(e) {
     //set back to default
     setBackToDefault()
   } else if (value && editFlag) {
+    editElement.innerHTML = value
+    displayAlert('item editado com sucesso', 'sucesso')
+    //edit local storage
+    editLocalStorage(editID, value)
+    setBackToDefault()
   } else {
     displayAlert('por favor digite algo', 'danger')
   }
@@ -86,15 +72,15 @@ function clearItems() {
     })
   }
   container.classList.remove('show-container')
-  displayAlert('itens deletados com sucesso', 'success')
+  displayAlert('itens removidos com sucesso', 'success')
   setBackToDefault()
   localStorage.removeItem('list')
 }
 
 //DELETE ITEM
 function deleteItem(e) {
-  const id = element.dataset.id
   const element = e.currentTarget.parentElement.parentElement
+  const id = element.dataset.id
   list.removeChild(element)
 
   if (list.children.length === 0) {
@@ -107,11 +93,81 @@ function deleteItem(e) {
 }
 
 //EDIT ITEM
-function editItem() {}
+function editItem(e) {
+  const element = e.currentTarget.parentElement.parentElement
+  //set edit item
+  editElement = e.currentTarget.parentElement.previousElementSibling
+  //set form value
+  grocery.value = editElement.innerHTML
+  editFlag = true
+  editID = element.dataset.id
+  submitButton.textContent = 'Editar'
+}
 // ****** LOCAL STORAGE **********
 function addToLocalStorage(id, value) {
-  //console.log('added to local storage')
-}
-function removeFromLocalStorage(id) {}
+  const grocery = { id, value }
+  let items = getLocalStorage()
 
+  items.push(grocery)
+  localStorage.setItem('list', JSON.stringify(items))
+}
+function removeFromLocalStorage(id) {
+  let items = getLocalStorage()
+  items = items.filter(function (item) {
+    if (item.id !== id) {
+      return item
+    }
+  })
+  localStorage.setItem('list', JSON.stringify(items))
+}
+function editLocalStorage(id, value) {
+  let items = getLocalStorage()
+  items = items.map(function (item) {
+    if (item.id === id) {
+      item.value = value
+    }
+    return item
+  })
+  localStorage.setItem('list', JSON.stringify(items))
+}
+function getLocalStorage() {
+  return localStorage.getItem('list')
+    ? JSON.parse(localStorage.getItem('list'))
+    : []
+}
 // ****** SETUP ITEMS **********
+function setupItems() {
+  let items = getLocalStorage()
+  if (items.length > 0) {
+    items.forEach(function (item) {
+      createListItem(item.id, item.value)
+    })
+    container.classList.add('show-container')
+  }
+}
+function createListItem(id, value) {
+  const element = document.createElement('article')
+  // add class
+  element.classList.add('grocery-item')
+  //add id
+  const attr = document.createAttribute('data-id')
+  attr.value = id
+  element.setAttributeNode(attr)
+  element.innerHTML = `<p class="title">${value}</p>
+    <div class="btn-container">
+      <button type="button" class="edit-btn">
+        <i class="fas fa-edit"></i>
+      </button>
+      <button type="button" class="delete-btn">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>`
+  //delete event listener
+  const deleteButton = element.querySelector('.delete-btn')
+  deleteButton.addEventListener('click', deleteItem)
+  //edit event listener
+  const editButton = element.querySelector('.edit-btn')
+  editButton.addEventListener('click', editItem)
+  //append child
+  list.appendChild(element)
+}
